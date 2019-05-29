@@ -8,18 +8,16 @@ try {
     ]);
 
 
-    $stmt = $pdo->query('SELECT test_id FROM test_update LIMIT 1');
-    $fetched = $stmt->fetch();
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $stmt = $pdo->query('SELECT * FROM test_update LIMIT 10');
+        $fetched = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (empty($fetched)) {
-        $pdo->query("INSERT INTO test_update (test_id) VALUE (1)");
-    } else {
-        $test_id = ++$fetched['test_id'];
-        $stmt = $pdo->prepare("UPDATE test_update SET test_id = :test_id");
-        $stmt->execute(['test_id' => $test_id]);
+        var_dump($fetched); exit;
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $stmt = $pdo->prepare('INSERT INTO test_update (test_title, test_text) VALUES(:test_title, :test_text)');
+        $stmt->execute(['test_title' => 'test', 'test_text' => 'Some test text']);
     }
 
-    echo $fetched['test_id'] ?? 'empty';
 }
 catch (PDOException $e) {
     var_dump($e->getMessage());
