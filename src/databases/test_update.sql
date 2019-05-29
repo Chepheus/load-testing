@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS test_update (
+    test_id int(10) UNSIGNED PRIMARY KEY
+) ENGINE=InnoDB CHARACTER SET=utf8;

@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  nginx-php-fpm:
+    image: webdevops/php-nginx:7.3
+    restart: always
+    container_name: nginx-php
+    ports:
+      - 81:80
+    networks:
+      custom_network:
+        ipv4_address: 172.30.0.10
+    environment:
+      - WEB_DOCUMENT_ROOT=/app
+      - WEB_DOCUMENT_INDEX=index.php
+    volumes:
+      - ./src/index.php:/app/index.php
+
+  db:
+    image: mysql:5.7
+    container_name: nginx-mysql
+    ports:
+      - 3306:3306
+    networks:
+      custom_network:
+        ipv4_address: 172.30.0.11
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=test
+      - MYSQL_PASSWORD=test
+    volumes:
+      - ./src/data:/var/lib/mysql
+      - ./src/databases:/docker-entrypoint-initdb.d
+
+networks:
+  custom_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/24
