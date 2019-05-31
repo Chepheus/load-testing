@@ -7,19 +7,35 @@ try {
         PDO::ATTR_EMULATE_PREPARES   => false,
     ]);
 
+    switch ($_SERVER['REQUEST_METHOD']) {
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $stmt = $pdo->query('SELECT * FROM test_update LIMIT 10');
-        $fetched = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        case 'GET':
+            $page = $_GET['page'] ?? 1;
+            $limit = 10;
+            $offset = $limit * ($page - 1);
 
-        var_dump($fetched); exit;
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $stmt = $pdo->prepare('INSERT INTO test_update (test_title, test_text) VALUES(:test_title, :test_text)');
-        $stmt->execute(['test_title' => 'test', 'test_text' => 'Some test text']);
+            $stmt = $pdo->prepare('SELECT * FROM test_update LIMIT :offset, :limit');
+            $stmt->execute(['offset' => $offset, 'limit' => $limit]);
+
+            $fetched = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            var_dump($fetched);
+            http_response_code(200);
+            exit;
+
+        case 'POST':
+            $title = $_POST['title'] ?? 'test';
+            $text = $_POST['text'] ?? 'test';
+
+            $stmt = $pdo->prepare('INSERT INTO test_update (test_title, test_text) VALUES(:test_title, :test_text)');
+            $stmt->execute(['test_title' => $title, 'test_text' => $text]);
+            http_response_code(204);
+            exit;
+
     }
 
 }
-catch (PDOException $e) {
+catch (\Exception $e) {
     var_dump($e->getMessage());
     exit;
 }
